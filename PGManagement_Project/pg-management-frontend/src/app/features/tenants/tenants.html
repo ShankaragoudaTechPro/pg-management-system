@@ -1,0 +1,408 @@
+
+<div class="tenants-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">PROPERTY MANAGEMENT / TENANTS</p>
+      <h1>Tenant Management</h1>
+      <p class="subtitle">Manage tenant records, room allocations and tenant status.</p>
+    </div>
+    <div class="heading-actions">
+      <button class="btn btn-secondary" (click)="loadTenants()" [disabled]="loading">
+        ↻ Refresh
+      </button>
+      <button class="btn btn-primary" (click)="openAddForm()">＋ Add Tenant</button>
+    </div>
+  </header>
+
+  <div *ngIf="errorMessage" class="alert alert-error" role="alert">
+    <span>{{ errorMessage }}</span>
+    <button type="button" (click)="errorMessage = ''" aria-label="Dismiss">×</button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success" role="status">
+    <span>{{ successMessage }}</span>
+    <button type="button" (click)="successMessage = ''" aria-label="Dismiss">×</button>
+  </div>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <span class="stat-icon blue">♙</span>
+      <p>Total Tenants</p>
+      <strong>{{ summary.total }}</strong>
+      <small>All backend records</small>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-icon green">✓</span>
+      <p>Active on Page</p>
+      <strong class="green-text">{{ summary.active }}</strong>
+      <small>Active tenants in current results</small>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-icon grey">♙</span>
+      <p>Inactive on Page</p>
+      <strong>{{ summary.inactive }}</strong>
+      <small>Inactive tenants in current results</small>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-icon orange">₹</span>
+      <p>Visible Monthly Rent</p>
+      <strong>{{ summary.monthlyRent | currency:'INR':'symbol':'1.0-0' }}</strong>
+      <small>Sum of displayed tenant rents</small>
+    </article>
+  </section>
+
+  <section class="filter-panel">
+    <label class="search-field">
+      <span aria-hidden="true">⌕</span>
+      <input
+        type="search"
+        [(ngModel)]="searchTerm"
+        placeholder="Search tenant by name, mobile, room or email..."
+        aria-label="Search tenants">
+    </label>
+
+    <select [(ngModel)]="selectedStatus" aria-label="Filter by tenant status">
+      <option value="ALL">All Statuses</option>
+      <option value="ACTIVE">Active</option>
+      <option value="INACTIVE">Inactive</option>
+    </select>
+
+    <select [(ngModel)]="selectedPg" aria-label="Filter by PG">
+      <option value="ALL">All PGs</option>
+      <option *ngFor="let pg of tenantPgFilterOptions" [value]="pg.value">
+        {{ pg.label }}
+      </option>
+    </select>
+
+    <button
+      class="btn btn-secondary"
+      (click)="searchTerm = ''; selectedStatus = 'ALL'; selectedPg = 'ALL'">
+      Clear
+    </button>
+  </section>
+
+  <section class="registry-panel">
+    <header class="registry-header">
+      <div>
+        <h2>Tenant Registry</h2>
+        <p>Tenant information returned from the backend.</p>
+      </div>
+      <span class="result-count">
+        {{ filteredTenants.length }} of {{ tenants.length }}
+      </span>
+    </header>
+
+    <div *ngIf="loading && tenants.length === 0" class="state-panel">
+      <span class="spinner"></span>
+      <p>Loading tenants...</p>
+    </div>
+
+    <div *ngIf="!loading && filteredTenants.length === 0" class="state-panel">
+      <span class="empty-icon">♙</span>
+      <h3>{{ tenants.length ? 'No matching tenants' : 'No tenants registered yet' }}</h3>
+      <p>
+        {{ tenants.length
+          ? 'Try changing your search or filters.'
+          : 'Add your first tenant to get started.' }}
+      </p>
+      <button
+        *ngIf="!tenants.length"
+        class="btn btn-primary"
+        (click)="openAddForm()">
+        ＋ Add Tenant
+      </button>
+    </div>
+
+    <div *ngIf="filteredTenants.length > 0" class="table-wrap">
+      <table class="tenant-table">
+        <thead>
+          <tr>
+            <th>Tenant</th>
+            <th>Contact</th>
+            <th>PG / Room / Bed</th>
+            <th>Joining Date</th>
+            <th>Monthly Rent</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let tenant of filteredTenants; trackBy: trackByTenantId">
+            <td>
+              <div class="tenant-identity">
+                <span class="avatar">{{ initials(tenant.fullName) }}</span>
+                <div>
+                  <strong>{{ tenant.fullName }}</strong>
+                  <small>Tenant #{{ tenant.id ?? '—' }}</small>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <strong class="contact-primary">{{ tenant.mobileNumber }}</strong>
+              <small class="contact-secondary">
+                {{ tenant.email || 'No email provided' }}
+              </small>
+            </td>
+
+            <td>
+              <strong>{{ tenant.pgName || '—' }}</strong>
+              <small class="contact-secondary">
+                Room {{ tenant.roomNumber || '—' }} · Bed {{ tenant.bedNumber || '—' }}
+              </small>
+            </td>
+
+            <td>{{ tenant.joiningDate | date:'dd MMM yyyy' }}</td>
+
+            <td class="rent-value">
+              {{ tenant.monthlyRent | currency:'INR':'symbol':'1.0-0' }}
+            </td>
+
+            <td>
+              <span
+                class="status-pill"
+                [ngClass]="'status-' + tenant.status.toLowerCase()">
+                {{ tenant.status }}
+              </span>
+            </td>
+
+            <td>
+              <div class="table-actions">
+                <button
+                  class="btn btn-small btn-secondary"
+                  [disabled]="tenant.status !== 'ACTIVE'" (click)="openEditForm(tenant)">
+                  Edit
+                </button>
+                <button
+                  class="btn btn-small btn-danger-outline"
+                  (click)="deleteTenant(tenant)">
+                  Remove
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!loading && filteredTenants.length > 0" class="tenant-mobile-list">
+      <article
+        class="tenant-mobile-card"
+        *ngFor="let tenant of filteredTenants; trackBy: trackByTenantId">
+
+        <header class="mobile-tenant-heading">
+          <span class="avatar">{{ initials(tenant.fullName) }}</span>
+
+          <div class="mobile-tenant-name">
+            <strong>{{ tenant.fullName }}</strong>
+            <small>Tenant #{{ tenant.id ?? '—' }}</small>
+          </div>
+
+          <span
+            class="status-pill"
+            [ngClass]="'status-' + tenant.status.toLowerCase()">
+            {{ tenant.status }}
+          </span>
+        </header>
+
+        <div class="mobile-details">
+          <div>
+            <span>Mobile</span>
+            <strong>{{ tenant.mobileNumber }}</strong>
+          </div>
+
+          <div>
+            <span>Email</span>
+            <strong>{{ tenant.email || '—' }}</strong>
+          </div>
+
+          <div>
+            <span>Property</span>
+            <strong>{{ tenant.pgName || '—' }}</strong>
+          </div>
+
+          <div>
+            <span>Room / Bed</span>
+            <strong>{{ tenant.roomNumber || '—' }} / {{ tenant.bedNumber || '—' }}</strong>
+          </div>
+
+          <div>
+            <span>Joining date</span>
+            <strong>{{ tenant.joiningDate | date:'dd MMM yyyy' }}</strong>
+          </div>
+
+          <div>
+            <span>Monthly rent</span>
+            <strong class="rent-value">
+              {{ tenant.monthlyRent | currency:'INR':'symbol':'1.0-0' }}
+            </strong>
+          </div>
+        </div>
+
+        <footer class="mobile-card-actions">
+          <button class="btn btn-secondary" [disabled]="tenant.status !== 'ACTIVE'" (click)="openEditForm(tenant)">
+            Edit tenant
+          </button>
+          <button class="btn btn-danger-outline" (click)="deleteTenant(tenant)">
+            Remove
+          </button>
+        </footer>
+      </article>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" *ngIf="showForm" (click)="closeForm()">
+  <section
+    class="tenant-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="tenant-form-title"
+    (click)="$event.stopPropagation()">
+
+    <header class="modal-header">
+      <div>
+        <h2 id="tenant-form-title">
+          {{ editingId !== null ? 'Edit Tenant' : 'Add New Tenant' }}
+        </h2>
+        <p>Enter the tenant's details and room allocation.</p>
+      </div>
+
+      <button
+        type="button"
+        class="icon-button"
+        (click)="closeForm()"
+        aria-label="Close form">
+        ×
+      </button>
+    </header>
+
+    <form #tenantForm="ngForm" (ngSubmit)="saveTenant()">
+      <h3 class="form-section-title">Personal information</h3>
+
+      <div class="form-grid">
+        <label>Full name *
+          <input
+            name="fullName"
+            [(ngModel)]="form.fullName"
+            required
+            maxlength="100"
+            placeholder="Enter full name">
+        </label>
+
+        <label>Mobile number *
+          <input
+            name="mobileNumber"
+            [(ngModel)]="form.mobileNumber"
+            required
+            inputmode="numeric"
+            maxlength="10"
+            pattern="[0-9]{10}"
+            placeholder="10-digit mobile number">
+        </label>
+
+        <label>Email address
+          <input
+            name="email"
+            type="email"
+            [(ngModel)]="form.email"
+            email
+            placeholder="tenant@example.com">
+        </label>
+
+        <label>Aadhaar number
+          <input
+            name="aadhaarNumber"
+            type="password"
+            [(ngModel)]="form.aadhaarNumber"
+            autocomplete="off"
+            placeholder="Enter Aadhaar number">
+        </label>
+
+        <label>Gender
+          <select name="gender" [(ngModel)]="form.gender" required>
+            <option value="">Select gender</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </label>
+
+        <label>Joining date *
+          <input
+            name="joiningDate"
+            type="date"
+            [(ngModel)]="form.joiningDate"
+            required>
+        </label>
+</div>
+
+      <h3 class="form-section-title">Accommodation and rent</h3>
+
+      <div class="form-grid">
+        <label>PG property *
+          <select name="pgId" [(ngModel)]="form.pgId" (ngModelChange)="onPgChange($event)" required [disabled]="editingId !== null">
+            <option [ngValue]="undefined">Select PG</option>
+            <option *ngFor="let pg of pgOptions" [ngValue]="pg.id">{{ pg.name }}</option>
+          </select>
+          <small *ngIf="loadingPgs">Loading properties…</small>
+        </label>
+
+        <label>Room *
+          <select name="roomId" [(ngModel)]="form.roomId" (ngModelChange)="onRoomChange($event)" required [disabled]="editingId !== null || !form.pgId || loadingRooms">
+            <option [ngValue]="undefined">Select room</option>
+            <option *ngFor="let room of roomOptions" [ngValue]="room.id">Room {{ room.roomNumber }}</option>
+          </select>
+          <small *ngIf="loadingRooms">Loading rooms…</small>
+        </label>
+
+        <label>Available bed *
+          <select name="bedId" [(ngModel)]="form.bedId" (ngModelChange)="onBedChange($event)" required [disabled]="editingId !== null || !form.roomId || bedOptions.length === 0">
+            <option [ngValue]="undefined">Select bed</option>
+            <option *ngFor="let bed of bedOptions" [ngValue]="bed.id">Bed {{ bed.bedNumber }}{{ bed.status !== 'AVAILABLE' ? ' (currently assigned)' : '' }}</option>
+          </select>
+          <small *ngIf="form.roomId && bedOptions.length === 0">No available beds in this room.</small>
+        </label>
+
+        <label>Monthly rent (₹) *
+          <input name="monthlyRent" type="number" [(ngModel)]="form.monthlyRent" min="1" required>
+        </label>
+
+        <label>Security deposit (₹) *
+          <input name="securityDeposit" type="number" [(ngModel)]="form.securityDeposit" min="0" required>
+        </label>
+
+        <label>Emergency contact
+          <input name="emergencyContact" [(ngModel)]="form.emergencyContact" inputmode="numeric" maxlength="15" placeholder="Contact number">
+        </label>
+
+        <label>Emergency contact name
+          <input name="emergencyContactName" [(ngModel)]="form.emergencyContactName" maxlength="100" placeholder="Contact person's name">
+        </label>
+      </div>
+<p *ngIf="errorMessage" class="form-error" role="alert">
+        {{ errorMessage }}
+      </p>
+
+      <footer class="modal-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeForm()">
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="saving || tenantForm.invalid">
+          {{ saving ? 'Saving...' : (editingId !== null ? 'Update Tenant' : 'Save Tenant') }}
+        </button>
+      </footer>
+    </form>
+  </section>
+</div>

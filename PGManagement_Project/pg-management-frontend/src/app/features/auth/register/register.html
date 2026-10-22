@@ -1,0 +1,213 @@
+<div class="register-page">
+
+  <div class="register-card">
+
+    <div class="brand">
+      <div class="brand-icon">
+        PG
+      </div>
+
+      <div>
+        <h1>PG Manager</h1>
+        <p>Professional PG Management</p>
+      </div>
+    </div>
+
+    <div class="welcome">
+      <h2>Create your account</h2>
+      <p>
+        Register as a PG owner and manage your properties easily.
+      </p>
+    </div>
+
+    <div
+      class="server-error"
+      *ngIf="errorMessage"
+    >
+      {{ errorMessage }}
+    </div>
+
+    <div
+      class="success-message"
+      *ngIf="successMessage"
+    >
+      {{ successMessage }}
+    </div>
+
+    <form
+      [formGroup]="registerForm"
+      (ngSubmit)="onSubmit()"
+    >
+
+      <!-- Name -->
+      <div class="form-group">
+
+        <label for="name">
+          Full Name
+        </label>
+
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Enter your full name"
+          autocomplete="name"
+        />
+
+        <span
+          class="error"
+          *ngIf="name.touched && name.hasError('required')"
+        >
+          Name is required.
+        </span>
+
+        <span
+          class="error"
+          *ngIf="name.touched && name.hasError('minlength')"
+        >
+          Name must contain at least 2 characters.
+        </span>
+
+      </div>
+
+
+      <!-- Mobile -->
+      <div class="form-group">
+
+        <label for="mobile">
+          Mobile Number
+        </label>
+
+        <input
+          id="mobile"
+          type="tel"
+          formControlName="mobile"
+          placeholder="Enter 10-digit mobile number"
+          maxlength="10"
+          autocomplete="tel"
+        />
+
+        <span
+          class="error"
+          *ngIf="mobile.touched && mobile.hasError('required')"
+        >
+          Mobile number is required.
+        </span>
+
+        <span
+          class="error"
+          *ngIf="mobile.touched && mobile.hasError('pattern')"
+        >
+          Enter a valid 10-digit mobile number.
+        </span>
+
+      </div>
+
+
+      <!-- Email -->
+      <div class="form-group">
+
+        <label for="email">
+          Email Address
+        </label>
+
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="Enter your email"
+          autocomplete="email"
+        />
+
+        <span
+          class="error"
+          *ngIf="email.touched && email.hasError('required')"
+        >
+          Email is required.
+        </span>
+
+        <span
+          class="error"
+          *ngIf="email.touched && email.hasError('email')"
+        >
+          Enter a valid email address.
+        </span>
+
+      </div>
+
+
+      <!-- Password -->
+      <div class="form-group">
+
+        <label for="password">
+          Password
+        </label>
+
+        <div class="password-wrapper">
+
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Create your password"
+            autocomplete="new-password"
+          />
+
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePassword()"
+            [attr.aria-label]="
+              showPassword ? 'Hide password' : 'Show password'
+            "
+          >
+            {{ showPassword ? '🙈' : '👁' }}
+          </button>
+
+        </div>
+
+        <span
+          class="error"
+          *ngIf="password.touched && password.hasError('required')"
+        >
+          Password is required.
+        </span>
+
+        <span
+          class="error"
+          *ngIf="password.touched && password.hasError('minlength')"
+        >
+          Password must contain at least 6 characters.
+        </span>
+
+      </div>
+
+
+      <!-- Register -->
+      <button
+        type="submit"
+        class="register-button"
+        [disabled]="loading"
+      >
+        {{ loading ? 'Creating Account...' : 'Create Account' }}
+      </button>
+
+    </form>
+
+
+    <div class="login-text">
+
+      Already have an account?
+
+      <button
+        type="button"
+        (click)="goToLogin()"
+      >
+        Login
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

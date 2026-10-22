@@ -1,0 +1,451 @@
+
+<div class="rooms-page">
+
+  <!-- Page Header -->
+  <header class="rooms-header">
+    <div class="rooms-header-content">
+      <div>
+        <p class="rooms-eyebrow">PG MANAGEMENT</p>
+        <h1>Rooms &amp; Beds</h1>
+        <p class="rooms-subtitle">
+          Manage rooms, sharing capacity and live bed availability.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="add-room-btn"
+        (click)="openAddForm()"
+        [disabled]="saving"
+      >
+        <span aria-hidden="true">＋</span>
+        Add New Room
+      </button>
+    </div>
+  </header>
+
+  <!-- Success Message -->
+  <div
+    *ngIf="successMessage"
+    class="alert alert-success"
+    role="status"
+  >
+    <span aria-hidden="true">✓</span>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <!-- Error Message -->
+  <div
+    *ngIf="errorMessage && !showForm"
+    class="alert alert-error"
+    role="alert"
+  >
+    <span aria-hidden="true">!</span>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Summary Cards -->
+  <section class="room-stats">
+    <article class="stat-card">
+      <div class="stat-icon total-icon" aria-hidden="true">▦</div>
+      <div>
+        <p>Total Rooms</p>
+        <h2>{{ summary.totalRooms }}</h2>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon beds-icon" aria-hidden="true">▣</div>
+      <div>
+        <p>Total Beds</p>
+        <h2>{{ summary.totalBeds }}</h2>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon available-icon" aria-hidden="true">✓</div>
+      <div>
+        <p>Available Beds</p>
+        <h2>{{ summary.availableBeds }}</h2>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon occupied-icon" aria-hidden="true">♙</div>
+      <div>
+        <p>Occupied Beds</p>
+        <h2>{{ summary.occupiedBeds }}</h2>
+      </div>
+    </article>
+  </section>
+
+  <!-- Search and Filters -->
+  <section class="rooms-toolbar">
+    <div class="room-search">
+      <span aria-hidden="true">⌕</span>
+      <input
+        type="search"
+        name="roomSearch"
+        placeholder="Search room number or tenant..."
+        [(ngModel)]="searchTerm"
+        aria-label="Search rooms"
+      />
+    </div>
+
+    <select
+      name="floorFilter"
+      [(ngModel)]="selectedFloor"
+      aria-label="Filter by floor"
+    >
+      <option value="ALL">All Floors</option>
+      <option
+        *ngFor="let floor of floors"
+        [value]="floor"
+      >
+        Floor {{ floor }}
+      </option>
+    </select>
+
+    <select
+      name="sharingFilter"
+      [(ngModel)]="selectedSharing"
+      aria-label="Filter by sharing type"
+    >
+      <option value="ALL">All Sharing Types</option>
+      <option value="SINGLE">Single Sharing</option>
+      <option value="DOUBLE">Double Sharing</option>
+      <option value="TRIPLE">Triple Sharing</option>
+      <option value="FOUR_SHARING">Four Sharing</option>
+    </select>
+
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="loadRooms()"
+      [disabled]="loading || saving"
+    >
+      <span aria-hidden="true">↻</span>
+      {{ loading ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </section>
+
+  <!-- Loading State -->
+  <section
+    *ngIf="loading && rooms.length === 0"
+    class="rooms-loading"
+    role="status"
+  >
+    <div class="loading-spinner" aria-hidden="true"></div>
+    <p>Loading rooms...</p>
+  </section>
+
+  <!-- Rooms Content -->
+  <section *ngIf="!loading || rooms.length > 0" class="rooms-content">
+
+    <div class="rooms-section-heading">
+      <div>
+        <h2>Your Rooms</h2>
+        <p>
+          {{ filteredRooms.length }}
+          {{ filteredRooms.length === 1 ? 'room' : 'rooms' }} found
+        </p>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="filteredRooms.length === 0"
+      class="empty-state"
+    >
+      <div class="empty-state-icon" aria-hidden="true">▦</div>
+      <h3>No rooms found</h3>
+      <p>
+        No rooms match your current search or filters.
+        Add a room or clear the filters to continue.
+      </p>
+
+      <button
+        type="button"
+        class="add-room-btn"
+        (click)="openAddForm()"
+      >
+        ＋ Add New Room
+      </button>
+
+      <button
+        type="button"
+        class="refresh-btn"
+        (click)="clearFilters()"
+      >
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Room Cards -->
+    <div
+      *ngIf="filteredRooms.length > 0"
+      class="rooms-grid"
+    >
+      <article
+        class="room-card"
+        *ngFor="let room of filteredRooms; trackBy: trackByRoomId"
+      >
+
+        <!-- Room Header -->
+        <div class="room-card-header">
+          <div class="room-number-block">
+            <div class="room-icon" aria-hidden="true">▦</div>
+            <div>
+              <h3>Room {{ room.roomNumber }}</h3>
+              <p>Floor {{ room.floorNumber }}</p>
+            </div>
+          </div>
+
+          <span
+            class="room-status"
+            [ngClass]="{
+              'status-active': room.status === 'ACTIVE',
+              'status-inactive': room.status !== 'ACTIVE'
+            }"
+          >
+            {{ statusLabel(room.status || 'ACTIVE') }}
+          </span>
+        </div>
+
+        <!-- Room Information (fields backed by the API) -->
+        <div class="room-details">
+          <div class="room-detail">
+            <span class="detail-label">Sharing Type</span>
+            <strong>{{ sharingLabel(room.sharingType) }}</strong>
+          </div>
+          <div class="room-detail">
+            <span class="detail-label">Active Beds</span>
+            <strong>{{ room.totalBeds }}</strong>
+          </div>
+        </div>
+
+        <!-- Bed Availability -->
+        <div class="bed-section">
+          <div class="bed-section-header">
+            <h4>Bed Availability</h4>
+            <span>
+              {{ availableCount(room) }} of {{ room.totalBeds }} available
+            </span>
+          </div>
+
+          <div class="bed-progress">
+            <div
+              class="bed-progress-fill"
+              [style.width.%]="
+                room.totalBeds > 0
+                  ? (availableCount(room) / room.totalBeds) * 100
+                  : 0
+              "
+            ></div>
+          </div>
+
+          <!-- Bed List -->
+          <div
+            *ngIf="room.beds && room.beds.length > 0"
+            class="beds-list"
+          >
+            <div
+              class="bed-item"
+              *ngFor="let bed of room.beds"
+              [ngClass]="{
+                'bed-available': bed.status === 'AVAILABLE',
+                'bed-occupied': bed.status === 'OCCUPIED'
+              }"
+            >
+              <span class="bed-symbol" aria-hidden="true">▣</span>
+              <span>{{ bed.bedNumber }}</span>
+              <span class="bed-status-text">
+                {{ statusLabel(bed.status) }}
+              </span>
+            </div>
+          </div>
+
+          <p
+            *ngIf="!room.beds || room.beds.length === 0"
+            class="no-beds-message"
+          >
+            No bed details available.
+          </p>
+        </div>
+
+        <!-- Room Actions -->
+        <div class="room-actions">
+          <button
+            type="button"
+            class="edit-room-btn"
+            (click)="openEditForm(room)"
+            [disabled]="saving || deletingId === room.id"
+          >
+            Edit Room
+          </button>
+
+          <button
+            type="button"
+            class="delete-room-btn"
+            (click)="deleteRoom(room)"
+            [disabled]="
+              saving ||
+              deletingId === room.id ||
+              room.status === 'INACTIVE'
+            "
+          >
+            {{
+              deletingId === room.id
+                ? 'Deactivating...'
+                : (room.status === 'INACTIVE' ? 'Inactive' : 'Deactivate')
+            }}
+          </button>
+        </div>
+
+      </article>
+    </div>
+  </section>
+
+  <!-- Add / Edit Room Modal -->
+  <div
+    *ngIf="showForm"
+    class="room-modal-backdrop"
+    (click)="closeForm()"
+  >
+    <section
+      class="room-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="room-modal-title"
+      (click)="$event.stopPropagation()"
+    >
+
+      <!-- Modal Header -->
+      <header class="room-modal-header">
+        <div>
+          <h2 id="room-modal-title">
+            {{ editingId !== null ? 'Edit Room' : 'Add New Room' }}
+          </h2>
+          <p>Enter the room details supported by the room API.</p>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close-btn"
+          (click)="closeForm()"
+          [disabled]="saving"
+          aria-label="Close room form"
+        >
+          ×
+        </button>
+      </header>
+
+      <!-- Room Form -->
+      <form
+        #roomForm="ngForm"
+        class="room-form"
+        (ngSubmit)="saveRoom()"
+      >
+        <div class="form-grid">
+
+          <!-- Room Number -->
+          <div class="form-field">
+            <label for="roomNumber">Room Number *</label>
+            <input
+              id="roomNumber"
+              type="text"
+              name="roomNumber"
+              [(ngModel)]="form.roomNumber"
+              required
+              maxlength="20"
+              placeholder="e.g. 101"
+            />
+          </div>
+
+          <!-- Floor -->
+          <div class="form-field">
+            <label for="floorNumber">Floor Number *</label>
+            <input
+              id="floorNumber"
+              type="number"
+              name="floorNumber"
+              [(ngModel)]="form.floorNumber"
+              required
+              min="0"
+              step="1"
+              placeholder="e.g. 1"
+            />
+          </div>
+
+          <!-- Sharing -->
+          <div class="form-field">
+            <label for="sharingType">Sharing Type *</label>
+            <select
+              id="sharingType"
+              name="sharingType"
+              [(ngModel)]="form.sharingType"
+              required
+            >
+              <option value="SINGLE">Single Sharing</option>
+              <option value="DOUBLE">Double Sharing</option>
+              <option value="TRIPLE">Triple Sharing</option>
+              <option value="FOUR_SHARING">Four Sharing</option>
+            </select>
+          </div>
+
+          <div class="form-field full">
+            <label>Bed Capacity</label>
+            <p class="form-help">
+              Beds are created and maintained by the backend from the selected sharing type.
+              Existing occupied beds are protected when changing capacity.
+            </p>
+          </div>
+        </div>
+
+        <!-- Form Error -->
+        <div
+          *ngIf="errorMessage"
+          class="alert alert-error"
+          role="alert"
+        >
+          {{ errorMessage }}
+        </div>
+
+        <!-- Form Actions -->
+        <footer class="room-form-actions">
+          <button
+            type="button"
+            class="cancel-room-btn"
+            (click)="closeForm()"
+            [disabled]="saving"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="room-save-btn"
+            [disabled]="saving || roomForm.invalid"
+          >
+            <span
+              *ngIf="saving"
+              class="button-spinner"
+              aria-hidden="true"
+            ></span>
+
+            <span *ngIf="!saving" aria-hidden="true">✓</span>
+
+            <span>
+              {{
+                saving
+                  ? 'Saving room...'
+                  : (editingId !== null ? 'Update Room' : 'Save Room')
+              }}
+            </span>
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+</div>

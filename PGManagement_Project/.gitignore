@@ -1,0 +1,42 @@
+# Java / Spring Boot
+**/target/
+**/build/
+*.class
+*.jar
+*.war
+
+# Node / Angular
+**/node_modules/
+**/dist/
+**/.angular/
+**/coverage/
+npm-debug.log*
+yarn-error.log*
+
+# IDE / editor
+.idea/
+**/.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.history/
+
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+**/application-local.properties
+
+# Logs and runtime uploads
+*.log
+logs/
+**/uploads/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local database backups; keep required versioned migration scripts
+*.dump
+*.bak

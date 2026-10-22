@@ -1,0 +1,186 @@
+
+<div class="login-page">
+  <div class="login-shell">
+
+    <!-- Left: Owner login -->
+    <section class="login-panel">
+
+      <header class="brand-row">
+        <a class="brand" routerLink="/login" aria-label="PG Manager home">
+          <span class="brand-icon">PG</span>
+          <span class="brand-copy">
+            <span class="brand-name">PG Manager <span class="pro-badge">PRO</span></span>
+            <span class="brand-subtitle">Property Management Platform</span>
+          </span>
+        </a>
+
+        <span class="portal-badge">Owner Portal</span>
+      </header>
+
+      <div class="welcome">
+        <span class="eyebrow"><span class="status-dot"></span> OWNER ACCESS</span>
+        <h1>Welcome <span>back.</span></h1>
+        <p>Sign in to manage your PG business.</p>
+      </div>
+
+      <form
+        class="login-form"
+        (ngSubmit)="login()"
+        #loginForm="ngForm"
+        novalidate>
+
+        <div class="field">
+          <label for="email">Email address</label>
+          <div class="input-wrap">
+            <span class="input-icon" aria-hidden="true">✉</span>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              placeholder="Enter your registered email"
+              autocomplete="username"
+              required
+              email
+              [disabled]="loading">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap password-wrap">
+            <span class="input-icon" aria-hidden="true">♙</span>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              name="password"
+              [(ngModel)]="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+              [disabled]="loading">
+
+            <button
+              class="password-toggle"
+              type="button"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-options">
+          <span class="secure-label">
+            <span class="status-dot"></span>
+            Secure owner access
+          </span>
+          <a routerLink="/forgot-password">Forgot password?</a>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message" role="alert">
+          <span aria-hidden="true">!</span>
+          {{ errorMessage }}
+        </div>
+
+        <button
+          type="submit"
+          class="sign-in-button"
+          [disabled]="loading || !loginForm.valid">
+
+          <span *ngIf="!loading">Sign in to your account</span>
+          <span *ngIf="loading" class="loading-content">
+            <span class="spinner"></span>
+            Signing in...
+          </span>
+          <span *ngIf="!loading" class="button-arrow" aria-hidden="true">→</span>
+        </button>
+
+        <p class="register-link">
+          New to PG Manager?
+          <a routerLink="/register">Create an owner account</a>
+        </p>
+      </form>
+
+      <!-- Maintenance portal switch -->
+      <div class="account-switch">
+        <div class="switch-icon" aria-hidden="true">⚙</div>
+
+        <div class="switch-content">
+          <strong>Maintenance administrator?</strong>
+          <span>Access the maintenance management portal.</span>
+        </div>
+
+        <a class="switch-button" routerLink="/maintenance/login">
+          Switch account <span aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <footer class="login-footer">
+        <span>© {{ currentYear }} PG Manager</span>
+        <span><span class="footer-dot"></span> Owner portal</span>
+      </footer>
+    </section>
+
+    <!-- Right: Product introduction -->
+    <aside class="feature-panel">
+      <div class="feature-background-shape shape-one"></div>
+      <div class="feature-background-shape shape-two"></div>
+
+      <div class="feature-content">
+        <div class="feature-brand-mark">
+          <span class="brand-icon feature-logo">PG</span>
+          <span>PG MANAGER <span class="feature-pro">PRO</span></span>
+        </div>
+
+        <span class="platform-badge">
+          <span class="status-dot"></span>
+          PROPERTY OPERATIONS PLATFORM
+        </span>
+
+        <h2>Your PG business.<br><span>One dashboard.</span></h2>
+
+        <p class="feature-description">
+          Manage properties, residents, rooms, beds and rental operations
+          from one organized workspace.
+        </p>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <span class="feature-icon">⌂</span>
+            <span class="feature-label">PROPERTIES</span>
+            <h3>Multiple PGs</h3>
+            <p>Manage multiple properties under one account.</p>
+          </article>
+
+          <article class="feature-card">
+            <span class="feature-icon">▦</span>
+            <span class="feature-label">INVENTORY</span>
+            <h3>Rooms &amp; Beds</h3>
+            <p>Track availability and tenant allocations.</p>
+          </article>
+
+          <article class="feature-card">
+            <span class="feature-icon">♙</span>
+            <span class="feature-label">RESIDENTS</span>
+            <h3>Tenant management</h3>
+            <p>Organize check-ins and resident records.</p>
+          </article>
+
+          <article class="feature-card">
+            <span class="feature-icon">₹</span>
+            <span class="feature-label">FINANCE</span>
+            <h3>Rent management</h3>
+            <p>Review rent due, overdue and collected.</p>
+          </article>
+        </div>
+      </div>
+
+      <footer class="feature-footer">
+        <span>Everything organized. Every day.</span>
+        <span class="footer-brand">PG Manager <span>PRO</span></span>
+      </footer>
+    </aside>
+
+  </div>
+</div>

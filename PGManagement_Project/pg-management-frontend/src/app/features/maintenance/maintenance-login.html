@@ -1,0 +1,152 @@
+
+<div class="maintenance-login">
+  <section class="brand-panel">
+    <a class="brand" routerLink="/login">
+      <span class="brand-mark">P</span>
+      <span>PG<span class="brand-light">Manager</span></span>
+    </a>
+
+    <div class="brand-content">
+      <div class="eyebrow">
+        <span class="status-dot"></span>
+        SECURE OPERATIONS PORTAL
+      </div>
+
+      <h1>Manage every property.<br>
+        <span>Stay in control.</span>
+      </h1>
+
+      <p>
+        A dedicated workspace for authorized maintenance
+        administrators to oversee operations and protect
+        property accounts.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature">
+          <span class="feature-icon">✓</span>
+          <div>
+            <strong>Account oversight</strong>
+            <small>Manage owner access and account status</small>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span class="feature-icon">✓</span>
+          <div>
+            <strong>Secure administration</strong>
+            <small>Protected APIs and role-based access</small>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span class="feature-icon">✓</span>
+          <div>
+            <strong>Audit visibility</strong>
+            <small>Review administrative security actions</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-footer">
+      PG Management · Administrative Access
+    </div>
+  </section>
+
+  <section class="form-panel">
+    <div class="form-top">
+      <span class="secure-label">
+        <span class="lock-icon">▣</span>
+        SECURE SIGN IN
+      </span>
+      <a routerLink="/login" class="back-link">
+        Owner login ↗
+      </a>
+    </div>
+
+    <div class="login-card">
+      <div class="mobile-brand">
+        <span class="brand-mark">P</span>
+        <strong>PG Manager</strong>
+      </div>
+
+      <div class="login-heading">
+        <div class="admin-icon">⌘</div>
+        <h2>Maintenance portal</h2>
+        <p>Sign in with your authorized maintenance account.</p>
+      </div>
+
+      <form #loginForm="ngForm" (ngSubmit)="login()">
+        <div class="field">
+          <label for="email">Work email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            [(ngModel)]="email"
+            #emailField="ngModel"
+            required
+            email
+            autocomplete="username"
+            placeholder="you@company.com"
+            [disabled]="loading"
+          />
+          <small class="field-error"
+            *ngIf="emailField.invalid && emailField.touched">
+            Enter a valid email address.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input
+              id="password"
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              required
+              autocomplete="current-password"
+              placeholder="Enter your password"
+              [disabled]="loading"
+            />
+            <button
+              class="show-password"
+              type="button"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="error-message" *ngIf="errorMessage" role="alert">
+          <span>!</span>
+          {{ errorMessage }}
+        </div>
+
+        <button
+          class="submit-button"
+          type="submit"
+          [disabled]="loading || loginForm.invalid">
+          <span *ngIf="!loading">Sign in securely <span>→</span></span>
+          <span *ngIf="loading" class="loading-text">
+            <span class="spinner"></span>
+            Verifying credentials...
+          </span>
+        </button>
+      </form>
+
+      <div class="security-note">
+        <span>▣</span>
+        Your session is verified by the server.
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <span>© PG Management</span>
+      <span>Authorized personnel only</span>
+    </div>
+  </section>
+</div>

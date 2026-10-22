@@ -1,0 +1,222 @@
+
+<div class="maintenance-auth-page">
+  <div class="auth-shell">
+
+    <!-- LEFT BRAND PANEL -->
+    <aside class="brand-panel">
+      <header class="brand">
+        <div class="brand-icon">P</div>
+        <div>
+          <h2>PG Manager</h2>
+          <span>Maintenance portal</span>
+        </div>
+      </header>
+
+      <div class="brand-content">
+        <span class="security-label">
+          <span class="live-dot"></span>
+          SECURE OPERATIONS PORTAL
+        </span>
+
+        <h1>
+          Request access.<br>
+          <span>Build trust.</span>
+        </h1>
+
+        <p class="brand-description">
+          Request authorized maintenance access to help manage
+          properties and support PG operations securely.
+        </p>
+
+        <div class="benefits">
+          <div class="benefit">
+            <span class="benefit-icon">✓</span>
+            <div>
+              <strong>Administrator approval</strong>
+              <p>Your request is reviewed before access is granted.</p>
+            </div>
+          </div>
+
+          <div class="benefit">
+            <span class="benefit-icon">✓</span>
+            <div>
+              <strong>Protected account access</strong>
+              <p>Only approved and active staff can sign in.</p>
+            </div>
+          </div>
+
+          <div class="benefit">
+            <span class="benefit-icon">✓</span>
+            <div>
+              <strong>Secure operations</strong>
+              <p>Your maintenance access is managed securely.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="brand-footer">
+        PG Management · Authorized Access
+      </footer>
+    </aside>
+
+    <!-- RIGHT REGISTRATION PANEL -->
+    <main class="form-panel">
+      <header class="form-topbar">
+        <span class="topbar-label">STAFF REGISTRATION</span>
+        <a routerLink="/maintenance/login">
+          Maintenance login ↗
+        </a>
+      </header>
+
+      <div class="form-content">
+        <div class="form-symbol">＋</div>
+
+        <h2>Request maintenance access</h2>
+        <p class="form-description">
+          Create a registration request for administrator review.
+        </p>
+
+        <div class="approval-notice">
+          <span class="notice-icon">i</span>
+          <div>
+            <strong>Approval required</strong>
+            <p>
+              Submitting this form does not give you access.
+              You can sign in after your account is approved.
+            </p>
+          </div>
+        </div>
+
+        <div
+          *ngIf="errorMessage"
+          class="message message-error"
+          role="alert">
+          {{ errorMessage }}
+        </div>
+
+        <div
+          *ngIf="submitted"
+          class="message message-success"
+          role="status">
+          <strong>Registration request submitted</strong>
+          <span>{{ successMessage }}</span>
+
+          <button
+            type="button"
+            class="success-login-button"
+            (click)="goToMaintenanceLogin()">
+            Go to maintenance login →
+          </button>
+        </div>
+
+        <form
+          *ngIf="!submitted"
+          #registrationForm="ngForm"
+          (ngSubmit)="submit()"
+          novalidate>
+
+          <div class="field">
+            <label for="staffName">Full name</label>
+            <input
+              id="staffName"
+              name="name"
+              type="text"
+              [(ngModel)]="name"
+              placeholder="Enter your full name"
+              autocomplete="name"
+              minlength="2"
+              maxlength="100"
+              required
+              [disabled]="loading">
+          </div>
+
+          <div class="field">
+            <label for="staffMobile">Mobile number</label>
+            <input
+              id="staffMobile"
+              name="mobile"
+              type="tel"
+              [(ngModel)]="mobile"
+              placeholder="10-digit mobile number"
+              autocomplete="tel"
+              inputmode="numeric"
+              maxlength="10"
+              pattern="[0-9]{10}"
+              required
+              [disabled]="loading">
+          </div>
+
+          <div class="field">
+            <label for="staffEmail">Work email</label>
+            <input
+              id="staffEmail"
+              name="email"
+              type="email"
+              [(ngModel)]="email"
+              placeholder="you@company.com"
+              autocomplete="email"
+              email
+              maxlength="190"
+              required
+              [disabled]="loading">
+          </div>
+
+          <div class="field">
+            <label for="staffPassword">Password</label>
+            <input
+              id="staffPassword"
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              placeholder="At least 12 characters"
+              autocomplete="new-password"
+              minlength="12"
+              maxlength="72"
+              required
+              [disabled]="loading">
+          </div>
+
+          <div class="field">
+            <label for="confirmPassword">Confirm password</label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="confirmPassword"
+              placeholder="Re-enter your password"
+              autocomplete="new-password"
+              required
+              [disabled]="loading">
+          </div>
+
+          <label class="show-password">
+            <input
+              type="checkbox"
+              [checked]="showPassword"
+              (change)="showPassword = !showPassword">
+            Show passwords
+          </label>
+
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="loading || !registrationForm.valid">
+            {{ loading ? 'Submitting request...' : 'Submit registration request →' }}
+          </button>
+
+          <p class="login-link">
+            Already have an approved account?
+            <a routerLink="/maintenance/login">Sign in</a>
+          </p>
+        </form>
+      </div>
+
+      <footer class="form-footer">
+        <span>© PG Management</span>
+        <span>Authorized personnel only</span>
+      </footer>
+    </main>
+
+  </div>
+</div>

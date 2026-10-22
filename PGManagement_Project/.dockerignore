@@ -1,0 +1,12 @@
+**/node_modules
+**/target
+**/dist
+**/.angular
+**/.git
+**/.idea
+**/.vscode
+**/*.log
+.env
+.env.*
+!.env.example
+**/uploads

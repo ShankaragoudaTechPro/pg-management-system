@@ -1,0 +1,147 @@
+
+<header class="navbar">
+
+  <!-- Desktop page heading -->
+  <div class="page-heading">
+    <h1>{{ pageTitle }}</h1>
+    <p>{{ pageSubtitle }}</p>
+  </div>
+
+  <!-- Mobile brand -->
+  <div class="mobile-brand">
+    <div class="mobile-brand-icon">PG</div>
+
+    <div class="mobile-brand-text">
+      <strong>PG Manager</strong>
+      <span>{{ pageTitle }}</span>
+    </div>
+  </div>
+
+  <div class="navbar-spacer"></div>
+
+  <!-- Notifications -->
+  <button
+    type="button"
+    class="notification-button"
+    (click)="goToNotifications()"
+    aria-label="Open notifications"
+    title="Notifications">
+
+    <svg
+      class="notification-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      aria-hidden="true">
+
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.8"
+        d="M18 8a6 6 0 00-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.8"
+        d="M10 21h4"/>
+    </svg>
+
+    <span class="notification-dot" aria-hidden="true"></span>
+  </button>
+
+  <!-- User profile / dropdown -->
+  <div class="profile-menu-area">
+
+    <button
+      type="button"
+      class="profile-button"
+      (click)="toggleProfileMenu()"
+      [attr.aria-expanded]="isProfileMenuOpen"
+      aria-haspopup="menu"
+      aria-label="Open account menu">
+
+      <div class="avatar">
+        {{ userInitial }}
+      </div>
+
+      <div class="owner-info">
+        <strong>{{ userRole }}</strong>
+        <span>{{ ownerEmail }}</span>
+      </div>
+
+      <svg
+        class="profile-chevron"
+        [class.chevron-open]="isProfileMenuOpen"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        aria-hidden="true">
+
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 9l6 6 6-6"/>
+      </svg>
+    </button>
+
+    <!-- Dropdown -->
+    <div
+      *ngIf="isProfileMenuOpen"
+      class="profile-dropdown"
+      role="menu">
+
+      <div class="dropdown-user-summary">
+        <div class="avatar dropdown-avatar">
+          {{ userInitial }}
+        </div>
+
+        <div class="dropdown-user-info">
+          <strong>{{ userRole }}</strong>
+          <span>{{ ownerEmail }}</span>
+        </div>
+      </div>
+
+      <div class="dropdown-divider"></div>
+
+      <button
+        type="button"
+        class="dropdown-item"
+        role="menuitem"
+        (click)="goToProfile()">
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 21a8 8 0 0116 0"/>
+        </svg>
+
+        <span>My Profile</span>
+      </button>
+
+      <button
+        type="button"
+        class="dropdown-item logout-item"
+        role="menuitem"
+        (click)="logout()">
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path
+            d="M10 17l5-5-5-5m5 5H3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.8"/>
+
+          <path
+            d="M12 3h6a2 2 0 012 2v14a2 2 0 01-2 2h-6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.8"/>
+        </svg>
+
+        <span>Logout</span>
+      </button>
+    </div>
+  </div>
+
+</header>

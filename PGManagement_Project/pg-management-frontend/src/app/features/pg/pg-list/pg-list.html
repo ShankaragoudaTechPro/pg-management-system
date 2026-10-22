@@ -1,0 +1,732 @@
+<div class="pg-page">
+
+  <!-- Toast notification -->
+  @if (toastMessage) {
+    <div class="pg-toast" role="status">
+      <span class="material-symbols-outlined">check_circle</span>
+      <span>{{ toastMessage }}</span>
+    </div>
+  }
+
+  <!-- Header -->
+  <header class="pg-heading">
+    <div class="pg-heading__copy">
+      <div class="pg-eyebrow">
+        <span class="pg-eyebrow__dot"></span>
+        PROPERTY PORTFOLIO
+        <span class="pg-eyebrow__divider"></span>
+        {{ totalProperties }}
+        {{ totalProperties === 1 ? 'property' : 'properties' }}
+      </div>
+
+      <h1>My PG Properties</h1>
+      <p>
+        Manage your properties, rooms, occupancy and rental
+        operations from one place.
+      </p>
+    </div>
+
+    <div class="pg-heading__actions">
+      <button
+        type="button"
+        class="pg-button pg-button--secondary"
+        (click)="printPortfolio()">
+        <span class="material-symbols-outlined">download</span>
+        Portfolio report
+      </button>
+
+      <button
+        type="button"
+        class="pg-button pg-button--secondary"
+        (click)="reload()"
+        [disabled]="loading || saving">
+        <span class="material-symbols-outlined">refresh</span>
+        {{ loading ? 'Refreshing...' : 'Refresh' }}
+      </button>
+
+      <button
+        type="button"
+        class="pg-button pg-button--primary"
+        (click)="openAddModal()">
+        <span class="material-symbols-outlined">add</span>
+        Add new PG
+      </button>
+    </div>
+  </header>
+
+  <!-- Error banner when previously loaded data is available -->
+  @if (errorMessage && pgs.length > 0) {
+    <div class="pg-state pg-state--error" role="alert">
+      <p>
+        {{ errorMessage }}
+        Previously loaded properties remain visible.
+      </p>
+
+      <button
+        type="button"
+        class="pg-button pg-button--secondary"
+        (click)="reload()"
+        [disabled]="loading">
+        Try again
+      </button>
+    </div>
+  }
+
+  <!-- Initial loading state -->
+  @if (loading && pgs.length === 0) {
+    <section
+      class="pg-kpi-grid"
+      aria-label="Loading property metrics">
+
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="pg-kpi pg-kpi--skeleton">
+          <div class="pg-skeleton pg-skeleton--label"></div>
+          <div class="pg-skeleton pg-skeleton--value"></div>
+          <div class="pg-skeleton pg-skeleton--caption"></div>
+        </div>
+      }
+    </section>
+
+    <section class="pg-loading-panel" role="status">
+      <span class="pg-spinner"></span>
+      <div>
+        <h2>Loading your properties</h2>
+        <p>Retrieving property and occupancy information.</p>
+      </div>
+    </section>
+  }
+
+  <!-- Error state when no property data is available -->
+  @else if (errorMessage && pgs.length === 0) {
+    <section class="pg-state pg-state--error" role="alert">
+      <div class="pg-state__icon">
+        <span class="material-symbols-outlined">cloud_off</span>
+      </div>
+
+      <div class="pg-state__content">
+        <h2>We couldn't load your properties</h2>
+        <p>{{ errorMessage }}</p>
+      </div>
+
+      <button
+        type="button"
+        class="pg-button pg-button--secondary"
+        (click)="reload()"
+        [disabled]="loading">
+        <span class="material-symbols-outlined">refresh</span>
+        Try again
+      </button>
+    </section>
+  }
+
+  @else {
+    <!-- Portfolio KPI cards -->
+    <section class="pg-kpi-grid">
+
+      <!-- Total properties -->
+      <article class="pg-kpi">
+        <div class="pg-kpi__top">
+          <span class="pg-kpi__label">Total properties</span>
+
+          <span class="pg-kpi__icon pg-kpi__icon--blue">
+            <span class="material-symbols-outlined">domain</span>
+          </span>
+        </div>
+
+        <div class="pg-kpi__value">
+          {{ totalProperties }}
+        </div>
+
+        <div class="pg-kpi__footer">
+          <span>{{ activeProperties }} active</span>
+          <span>Across your portfolio</span>
+        </div>
+      </article>
+
+      <!-- Bed occupancy -->
+      <article class="pg-kpi">
+        <div class="pg-kpi__top">
+          <span class="pg-kpi__label">Bed occupancy</span>
+
+          <span class="pg-kpi__icon pg-kpi__icon--cyan">
+            <span class="material-symbols-outlined">bed</span>
+          </span>
+        </div>
+
+        <div class="pg-kpi__value">
+          {{ occupiedBeds }}
+          <span class="pg-kpi__suffix">/ {{ totalBeds }}</span>
+        </div>
+
+        <div class="pg-progress">
+          <div class="pg-progress__labels">
+            <span>
+              {{ formatPercent(overallOccupancy) }} occupied
+            </span>
+            <span>{{ availableBeds }} vacant</span>
+          </div>
+
+          <div class="pg-progress__track">
+            <div
+              class="pg-progress__fill"
+              [style.width.%]="occupancyWidth(overallOccupancy)">
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Rent collected -->
+      <article class="pg-kpi">
+        <div class="pg-kpi__top">
+          <span class="pg-kpi__label">Rent collected</span>
+
+          <span class="pg-kpi__icon pg-kpi__icon--violet">
+            <span class="material-symbols-outlined">payments</span>
+          </span>
+        </div>
+
+        <div class="pg-kpi__value pg-kpi__value--currency">
+          {{ formatCurrency(totalRentCollected) }}
+        </div>
+
+        <div class="pg-kpi__footer">
+          <span class="pg-positive">
+            {{ formatPercent(collectionPercentage) }} collected
+          </span>
+
+          <span>{{ formatCurrency(totalRentDue) }} due</span>
+        </div>
+      </article>
+
+      <!-- Active tenants -->
+      <article class="pg-kpi">
+        <div class="pg-kpi__top">
+          <span class="pg-kpi__label">Active tenants</span>
+
+          <span class="pg-kpi__icon pg-kpi__icon--amber">
+            <span class="material-symbols-outlined">groups</span>
+          </span>
+        </div>
+
+        <div class="pg-kpi__value">
+          {{ totalActiveTenants }}
+        </div>
+
+        <div class="pg-kpi__footer">
+          <span>Across the portfolio</span>
+
+          <span class="pg-negative">
+            {{ formatCurrency(totalRentOverdue) }} overdue
+          </span>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- First-property empty state -->
+    @if (pgs.length === 0) {
+      <section class="pg-state pg-state--empty">
+        <div class="pg-empty-illustration">
+          <span class="material-symbols-outlined">apartment</span>
+        </div>
+
+        <h2>Your property portfolio starts here</h2>
+
+        <p>
+          Add your first PG to start managing its rooms, residents,
+          occupancy and rent.
+        </p>
+
+        <button
+          type="button"
+          class="pg-button pg-button--primary"
+          (click)="openAddModal()">
+          <span class="material-symbols-outlined">add</span>
+          Add your first PG
+        </button>
+      </section>
+    }
+
+    @else {
+      <!-- Filters and view controls -->
+      <section class="pg-toolbar">
+        <div class="pg-toolbar__title">
+          <div>
+            <h2>Your properties</h2>
+
+            <p>
+              Showing {{ filteredPgs.length }} of {{ totalProperties }}
+              properties
+            </p>
+          </div>
+        </div>
+
+        <div class="pg-toolbar__controls">
+
+          <!-- Search -->
+          <label class="pg-search">
+            <span class="material-symbols-outlined">search</span>
+
+            <input
+              type="search"
+              [(ngModel)]="searchTerm"
+              placeholder="Search properties..."
+              aria-label="Search properties">
+          </label>
+
+          <!-- Property type filter -->
+          <select
+            class="pg-select"
+            [(ngModel)]="selectedType"
+            aria-label="Filter by property type">
+
+            <option value="ALL">All types</option>
+
+            @for (type of typeOptions; track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select>
+
+          <!-- Sort options -->
+          <select
+            class="pg-select"
+            [(ngModel)]="sortOption"
+            aria-label="Sort properties">
+
+            <option value="occupancy-desc">Highest occupancy</option>
+            <option value="occupancy-asc">Lowest occupancy</option>
+            <option value="rent-desc">Highest rent collected</option>
+            <option value="vacancy-first">Most vacant beds</option>
+          </select>
+
+          <!-- Grid/table toggle -->
+          <div
+            class="pg-view-toggle"
+            aria-label="Property display mode">
+
+            <button
+              type="button"
+              aria-label="Grid view"
+              title="Grid view"
+              [class.is-active]="viewMode === 'grid'"
+              (click)="setViewMode('grid')">
+
+              <span class="material-symbols-outlined">grid_view</span>
+            </button>
+
+            <button
+              type="button"
+              aria-label="Table view"
+              title="Table view"
+              [class.is-active]="viewMode === 'table'"
+              (click)="setViewMode('table')">
+
+              <span class="material-symbols-outlined">view_list</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- No search matches -->
+      @if (filteredPgs.length === 0) {
+        <section class="pg-state pg-state--empty pg-state--compact">
+          <div class="pg-empty-illustration">
+            <span class="material-symbols-outlined">search_off</span>
+          </div>
+
+          <h2>No matching properties</h2>
+
+          <p>Try changing your search term or filters.</p>
+
+          <button
+            type="button"
+            class="pg-button pg-button--secondary"
+            (click)="clearFilters()">
+            Clear filters
+          </button>
+        </section>
+      }
+
+      <!-- Property grid -->
+      @if (viewMode === 'grid' && filteredPgs.length > 0) {
+        <section class="pg-property-grid">
+
+          @for (pg of filteredPgs; track pg.id) {
+            @let metric = getMetrics(pg.id);
+
+            <article class="pg-property-card">
+
+              <!-- Property cover -->
+              <div class="pg-property-card__cover">
+                <div class="pg-property-card__cover-pattern"></div>
+
+                <div class="pg-property-card__cover-top">
+                  <span class="pg-badge pg-badge--type">
+                    {{ pg.type || 'PG property' }}
+                  </span>
+
+                  <span
+                    class="pg-badge"
+                    [ngClass]="statusClass(pg.status)">
+                    {{ pg.status || 'Unknown' }}
+                  </span>
+                </div>
+
+                <div class="pg-property-card__cover-icon">
+                  <span class="material-symbols-outlined">apartment</span>
+                </div>
+
+                <div class="pg-property-card__occupancy">
+                  <strong>{{ formatPercent(metric.occupancy) }}</strong>
+                  <span>occupied</span>
+                </div>
+              </div>
+
+              <!-- Property details -->
+              <div class="pg-property-card__body">
+
+                <div class="pg-property-card__heading">
+                  <div>
+                    <h3>{{ pg.name }}</h3>
+                  </div>
+
+                  <span class="pg-property-card__id">
+                    #{{ pg.id }}
+                  </span>
+                </div>
+
+                @if (pg.description) {
+                  <p class="pg-property-card__description">
+                    {{ pg.description }}
+                  </p>
+                }
+
+                <!-- Property statistics -->
+                <div class="pg-property-card__stats">
+
+                  <div>
+                    <span class="pg-stat__icon">
+                      <span class="material-symbols-outlined">
+                        meeting_room
+                      </span>
+                    </span>
+
+                    <span class="pg-stat__label">Rooms</span>
+                    <strong>{{ metric.rooms }}</strong>
+                  </div>
+
+                  <div>
+                    <span class="pg-stat__icon pg-stat__icon--cyan">
+                      <span class="material-symbols-outlined">bed</span>
+                    </span>
+
+                    <span class="pg-stat__label">Beds</span>
+                    <strong>{{ metric.beds }}</strong>
+                  </div>
+
+                  <div>
+                    <span class="pg-stat__icon pg-stat__icon--violet">
+                      <span class="material-symbols-outlined">groups</span>
+                    </span>
+
+                    <span class="pg-stat__label">Tenants</span>
+                    <strong>{{ metric.activeTenants }}</strong>
+                  </div>
+
+                </div>
+
+                <!-- Occupancy progress -->
+                <div class="pg-property-card__occupancy-bar">
+                  <div class="pg-progress__labels">
+                    <span>Occupancy</span>
+                    <strong>{{ formatPercent(metric.occupancy) }}</strong>
+                  </div>
+
+                  <div class="pg-progress__track">
+                    <div
+                      class="pg-progress__fill"
+                      [style.width.%]="occupancyWidth(metric.occupancy)">
+                    </div>
+                  </div>
+
+                  <div class="pg-progress__labels">
+                    <span>{{ metric.occupiedBeds }} occupied</span>
+                    <span>{{ metric.availableBeds }} available</span>
+                  </div>
+                </div>
+
+                <!-- Rent information -->
+                <div class="pg-property-card__finance">
+                  <div>
+                    <span>Rent collected</span>
+                    <strong>
+                      {{ formatCurrency(metric.rentCollected) }}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>Rent overdue</span>
+                    <strong class="pg-negative">
+                      {{ formatCurrency(metric.rentOverdue) }}
+                    </strong>
+                  </div>
+                </div>
+
+                <!-- Property actions -->
+                <div class="pg-property-card__actions">
+                  <button
+                    type="button"
+                    class="pg-button pg-button--secondary"
+                    (click)="openRooms(pg.id)">
+
+                    <span class="material-symbols-outlined">
+                      meeting_room
+                    </span>
+                    Rooms
+                  </button>
+
+                  <button
+                    type="button"
+                    class="pg-button pg-button--primary"
+                    (click)="openTenants(pg.id)">
+
+                    <span class="material-symbols-outlined">groups</span>
+                    Tenants
+                  </button>
+                </div>
+
+              </div>
+            </article>
+          }
+
+        </section>
+      }
+
+      <!-- Property table -->
+      @if (viewMode === 'table' && filteredPgs.length > 0) {
+        <section class="pg-table-wrap">
+          <table class="pg-table">
+
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Occupancy</th>
+                <th>Rent collected</th>
+                <th>Tenants</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (pg of filteredPgs; track pg.id) {
+                @let metric = getMetrics(pg.id);
+
+                <tr>
+                  <td>
+                    <div class="pg-table__property">
+                      <span class="pg-table__icon">
+                        <span class="material-symbols-outlined">
+                          apartment
+                        </span>
+                      </span>
+
+                      <span>
+                        <strong>{{ pg.name }}</strong>
+                        <small>{{ pg.type }} property</small>
+                      </span>
+                    </div>
+                  </td>
+
+                  <td>{{ pg.type }}</td>
+
+                  <td>
+                    <span
+                      class="pg-badge"
+                      [ngClass]="statusClass(pg.status)">
+                      {{ pg.status || 'Unknown' }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <strong>{{ formatPercent(metric.occupancy) }}</strong>
+
+                    <small class="pg-table__subtext">
+                      {{ metric.occupiedBeds }} / {{ metric.beds }} beds
+                    </small>
+                  </td>
+
+                  <td>{{ formatCurrency(metric.rentCollected) }}</td>
+
+                  <td>{{ metric.activeTenants }}</td>
+
+                  <td>
+                    <div class="pg-table__actions">
+                      <button
+                        type="button"
+                        class="pg-icon-button"
+                        aria-label="Manage rooms"
+                        title="Manage rooms"
+                        (click)="openRooms(pg.id)">
+
+                        <span class="material-symbols-outlined">
+                          meeting_room
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="pg-icon-button"
+                        aria-label="Manage tenants"
+                        title="Manage tenants"
+                        (click)="openTenants(pg.id)">
+
+                        <span class="material-symbols-outlined">
+                          groups
+                        </span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+
+          </table>
+        </section>
+      }
+    }
+  }
+
+  <!-- Add property modal -->
+  @if (isAddModalOpen) {
+    <div
+      class="pg-modal-backdrop"
+      (click)="onBackdropClick($event)"
+      (keydown.escape)="closeAddModal()">
+
+      <section
+        class="pg-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pg-modal-title"
+        (click)="$event.stopPropagation()">
+
+        <!-- Modal header -->
+        <header class="pg-modal__header">
+          <div>
+            <span class="pg-modal__eyebrow">PROPERTY SETUP</span>
+            <h2 id="pg-modal-title">Add a new PG</h2>
+            <p>Enter the basic details for your property.</p>
+          </div>
+
+          <button
+            type="button"
+            class="pg-icon-button"
+            aria-label="Close modal"
+            [disabled]="saving"
+            (click)="closeAddModal()">
+
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </header>
+
+        <!-- Modal form -->
+        <form
+          [formGroup]="addPgForm"
+          (ngSubmit)="createProperty()">
+
+          <div class="pg-modal__body">
+
+            @if (saveError) {
+              <div class="pg-form-alert" role="alert">
+                {{ saveError }}
+              </div>
+            }
+
+            <div class="pg-form-grid">
+
+              <!-- Property name -->
+              <label class="pg-field pg-field--full">
+                <span>Property name <b>*</b></span>
+
+                <input
+                  type="text"
+                  formControlName="name"
+                  placeholder="e.g. Green View PG"
+                  maxlength="150">
+
+                @if (
+                  addPgForm.controls.name.touched &&
+                  addPgForm.controls.name.hasError('required')
+                ) {
+                  <small>Property name is required.</small>
+                }
+
+                @if (
+                  addPgForm.controls.name.touched &&
+                  addPgForm.controls.name.hasError('maxlength')
+                ) {
+                  <small>
+                    Property name cannot exceed 150 characters.
+                  </small>
+                }
+              </label>
+
+              <!-- Property type -->
+              <label class="pg-field">
+                <span>Property type <b>*</b></span>
+
+                <select formControlName="type">
+                  <option value="COLIVING">Co-living</option>
+                  <option value="LADIES">Ladies PG</option>
+                  <option value="GENTS">Gents PG</option>
+                </select>
+              </label>
+
+              <!-- Description -->
+              <label class="pg-field pg-field--full">
+                <span>Description</span>
+
+                <textarea
+                  formControlName="description"
+                  rows="3"
+                  placeholder="Describe your property and facilities"
+                  maxlength="1000">
+                </textarea>
+              </label>
+
+            </div>
+          </div>
+
+          <!-- Modal footer -->
+          <footer class="pg-modal__footer">
+            <button
+              type="button"
+              class="pg-button pg-button--secondary"
+              [disabled]="saving"
+              (click)="closeAddModal()">
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="pg-button pg-button--primary"
+              [disabled]="saving || addPgForm.invalid">
+
+              @if (saving) {
+                <span class="pg-spinner pg-spinner--small"></span>
+                Creating...
+              } @else {
+                <span class="material-symbols-outlined">add</span>
+                Create property
+              }
+            </button>
+          </footer>
+
+        </form>
+      </section>
+    </div>
+  }
+
+</div>

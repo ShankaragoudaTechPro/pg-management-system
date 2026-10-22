@@ -1,0 +1,123 @@
+<section class="profile-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">ACCOUNT MANAGEMENT</span>
+      <h1>Profile</h1>
+      <p>Manage your owner account and password. Changes are saved to the backend.</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-secondary" (click)="loadProfile()" [disabled]="loading || saving">
+        {{ loading ? 'Refreshing...' : 'Refresh' }}
+      </button>
+      <button type="button" class="btn btn-secondary" *ngIf="profile && !editMode" (click)="toggleEdit()" [disabled]="loading">
+        Edit Profile
+      </button>
+      <ng-container *ngIf="editMode">
+        <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="saving">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveProfile()" [disabled]="saving">
+          {{ saving ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </ng-container>
+    </div>
+  </header>
+
+  <div *ngIf="errorMessage" class="alert alert-error" role="alert">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert-success" role="status">{{ successMessage }}</div>
+
+  <section *ngIf="loading && !profile" class="card" role="status">
+    <p>Loading account details...</p>
+  </section>
+
+  <ng-container *ngIf="profile as owner">
+    <section class="profile-hero">
+      <div class="profile-avatar">{{ initials }}</div>
+      <div class="profile-identity">
+        <div class="identity-title">
+          <h2>{{ owner.name }}</h2>
+          <span class="active-badge">
+            <span class="active-dot"></span>{{ owner.status }}
+          </span>
+        </div>
+        <p>PG Owner</p>
+        <div class="identity-meta">
+          <span>✉ {{ owner.email }}</span>
+          <span>☎ {{ owner.mobile }}</span>
+          <span *ngIf="owner.createdAt">Member since {{ owner.createdAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="content-grid">
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <span class="section-label">OWNER ACCOUNT</span>
+            <h2>Personal Information</h2>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="ownerName">Full Name</label>
+            <input id="ownerName" name="ownerName" type="text" [(ngModel)]="owner.name" [readonly]="!editMode" maxlength="100" autocomplete="name" />
+          </div>
+          <div class="form-field">
+            <label for="ownerMobile">Mobile Number</label>
+            <input id="ownerMobile" name="ownerMobile" type="tel" [(ngModel)]="owner.mobile" [readonly]="!editMode" maxlength="10" autocomplete="tel" />
+          </div>
+          <div class="form-field full">
+            <label for="ownerEmail">Login Email</label>
+            <input id="ownerEmail" name="ownerEmail" type="email" [(ngModel)]="owner.email" readonly autocomplete="email" />
+            <small>Your login email cannot be changed here.</small>
+          </div>
+          <div class="form-field">
+            <label for="ownerStatus">Account Status</label>
+            <input id="ownerStatus" name="ownerStatus" [value]="owner.status" readonly />
+          </div>
+          <div class="form-field">
+            <label for="ownerRole">Role</label>
+            <input id="ownerRole" name="ownerRole" value="PG Owner" readonly />
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <span class="section-label">SECURITY</span>
+            <h2>Change Password</h2>
+          </div>
+        </div>
+        <div class="password-form">
+          <div class="form-field full">
+            <label for="currentPassword">Current Password</label>
+            <input id="currentPassword" name="currentPassword" type="password" [(ngModel)]="passwordForm.currentPassword" autocomplete="current-password" />
+          </div>
+          <div class="form-field">
+            <label for="newPassword">New Password</label>
+            <input id="newPassword" name="newPassword" type="password" [(ngModel)]="passwordForm.newPassword" minlength="8" autocomplete="new-password" />
+          </div>
+          <div class="form-field">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input id="confirmPassword" name="confirmPassword" type="password" [(ngModel)]="passwordForm.confirmPassword" minlength="8" autocomplete="new-password" />
+          </div>
+          <p class="form-error full" *ngIf="getPasswordMismatch()">Passwords do not match.</p>
+        </div>
+        <div class="security-actions">
+          <button type="button" class="btn btn-primary" (click)="updatePassword()" [disabled]="changingPassword">
+            {{ changingPassword ? 'Updating...' : 'Update Password' }}
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <footer class="account-footer">
+      <div class="account-status">
+        <div class="status-icon" aria-hidden="true">✓</div>
+        <div>
+          <strong>Account information is database-backed</strong>
+          <p>PG property details can be updated from the My PGs section. No unsaved demo preferences are shown here.</p>
+        </div>
+      </div>
+    </footer>
+  </ng-container>
+</section>

@@ -1,0 +1,50 @@
+<div class="app-shell">
+
+  <!-- Fixed sidebar -->
+  <app-sidebar
+    [class.mobile-open]="isMobileMenuOpen"
+  ></app-sidebar>
+
+  <!-- Mobile menu backdrop -->
+  @if (isMobileMenuOpen) {
+    <button
+      type="button"
+      class="mobile-overlay"
+      aria-label="Close navigation menu"
+      (click)="closeMobileMenu()"
+    ></button>
+  }
+
+  <!-- Mobile menu toggle -->
+  <button
+    type="button"
+    class="mobile-menu-toggle"
+    aria-label="Toggle navigation menu"
+    [attr.aria-expanded]="isMobileMenuOpen"
+    (click)="toggleMobileMenu()"
+  >
+    @if (isMobileMenuOpen) {
+      <svg viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" aria-hidden="true">
+        <path d="m18 6-12 12M6 6l12 12"></path>
+      </svg>
+    } @else {
+      <svg viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" aria-hidden="true">
+        <path d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    }
+  </button>
+
+  <!-- Main content -->
+  <div class="main-area">
+    <app-navbar></app-navbar>
+
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+</div>

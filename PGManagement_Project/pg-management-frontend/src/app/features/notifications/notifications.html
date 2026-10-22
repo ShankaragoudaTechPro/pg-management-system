@@ -1,0 +1,236 @@
+<div class="notifications-page">
+  <!-- Page heading -->
+  <header class="page-header">
+    <div class="page-title">
+      <span class="eyebrow">ACTIVITY CENTER</span>
+      <h1>Notifications</h1>
+      <p>Stay updated with rent, tenant and property activity.</p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        class="btn btn-outline"
+        type="button"
+        (click)="loadNotifications()"
+        [disabled]="loading">
+        <span aria-hidden="true">↻</span>
+        Refresh
+      </button>
+
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="markAllAsRead()"
+        [disabled]="unreadCount === 0">
+        Mark all as read
+      </button>
+    </div>
+  </header>
+
+  <!-- Feedback -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    {{ successMessage }}
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <span>{{ errorMessage }}</span>
+    <button type="button" (click)="errorMessage = ''" aria-label="Close">
+      ×
+    </button>
+  </div>
+
+  <!-- Summary cards -->
+  <section class="summary-grid" aria-label="Notification summary">
+    <article class="summary-card">
+      <div class="summary-icon blue">▤</div>
+      <div class="summary-content">
+        <p>Total notifications</p>
+        <h2>{{ notifications.length }}</h2>
+        <span>All recent activity</span>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <div class="summary-icon orange">●</div>
+      <div class="summary-content">
+        <p>Unread</p>
+        <h2>{{ unreadCount }}</h2>
+        <span>Needs your attention</span>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <div class="summary-icon green">₹</div>
+      <div class="summary-content">
+        <p>Rent reminders</p>
+        <h2>{{ rentReminderCount }}</h2>
+        <span>Unread reminders</span>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <div class="summary-icon purple">!</div>
+      <div class="summary-content">
+        <p>System alerts</p>
+        <h2>{{ systemAlertCount }}</h2>
+        <span>Unread alerts</span>
+      </div>
+    </article>
+  </section>
+
+  <!-- Main notification panel -->
+  <section class="notification-panel">
+    <div class="panel-heading">
+      <div>
+        <span class="eyebrow">RECENT ACTIVITY</span>
+        <h2>Your notifications</h2>
+      </div>
+
+      <span class="result-count">
+        {{ filteredNotifications.length }}
+        {{ filteredNotifications.length === 1 ? 'notification' : 'notifications' }}
+      </span>
+    </div>
+
+    <!-- Search and filters -->
+    <div class="filter-toolbar">
+      <label class="search-field">
+        <span aria-hidden="true">⌕</span>
+        <input
+          type="search"
+          [(ngModel)]="searchText"
+          placeholder="Search notifications..."
+          aria-label="Search notifications">
+      </label>
+
+      <select
+        [(ngModel)]="selectedType"
+        aria-label="Filter by type">
+        <option value="ALL">All types</option>
+        <option value="RENT">Rent</option>
+        <option value="PAYMENT">Payment</option>
+        <option value="TENANT">Tenant</option>
+        <option value="SYSTEM">System</option>
+        <option value="GENERAL">General</option>
+      </select>
+
+      <select
+        [ngModel]="selectedFilter"
+        (ngModelChange)="setFilter($event)"
+        aria-label="Filter by read status">
+        <option value="ALL">All notifications</option>
+        <option value="UNREAD">Unread only</option>
+        <option value="READ">Read only</option>
+      </select>
+
+      <button
+        type="button"
+        class="btn btn-clear"
+        (click)="searchText = ''; selectedType = 'ALL'; selectedFilter = 'ALL'">
+        Clear
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="state-container" *ngIf="loading && notifications.length === 0">
+      <span class="spinner"></span>
+      <p>Loading notifications...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div
+      class="state-container empty-state"
+      *ngIf="!loading && filteredNotifications.length === 0">
+      <div class="empty-icon">♧</div>
+      <h3>No notifications found</h3>
+      <p>Try changing your search or filters.</p>
+
+      <button
+        class="btn btn-outline"
+        type="button"
+        (click)="searchText = ''; selectedType = 'ALL'; selectedFilter = 'ALL'">
+        Clear filters
+      </button>
+    </div>
+
+    <!-- Notification list -->
+    <div
+      class="notification-list"
+      *ngIf="filteredNotifications.length > 0">
+
+      <article
+        class="notification-row"
+        *ngFor="let item of filteredNotifications; trackBy: trackById"
+        [class.is-unread]="!item.read">
+
+        <div
+          class="notification-icon"
+          [ngClass]="'type-' + item.type.toLowerCase()">
+          {{ iconFor(item.type) }}
+        </div>
+
+        <div class="notification-body">
+          <div class="notification-title-line">
+            <h3>{{ item.title }}</h3>
+            <span class="unread-indicator" *ngIf="!item.read"></span>
+          </div>
+
+          <p class="notification-message">{{ item.message }}</p>
+
+          <div class="notification-details">
+            <span
+              class="type-tag"
+              [ngClass]="'tag-' + item.type.toLowerCase()">
+              {{ labelFor(item.type) }}
+            </span>
+
+            <span *ngIf="item.tenantName">
+              {{ item.tenantName }}
+            </span>
+
+            <span *ngIf="item.roomNumber">
+              Room {{ item.roomNumber }}
+            </span>
+
+            <time [attr.datetime]="item.createdAt">
+              {{ item.createdAt | date:'dd MMM yyyy, h:mm a' }}
+            </time>
+          </div>
+        </div>
+
+        <div class="row-actions">
+          <button
+            type="button"
+            class="action-button"
+            *ngIf="item.actionUrl"
+            (click)="markAsRead(item)"
+            [attr.aria-label]="'Mark ' + item.title + ' as read'">
+            View
+          </button>
+
+          <button
+            type="button"
+            class="action-button primary-action"
+            *ngIf="!item.read"
+            (click)="markAsRead(item)">
+            Mark read
+          </button>
+
+          <button
+            type="button"
+            class="action-button delete-action"
+            (click)="deleteNotification(item)"
+            [attr.aria-label]="'Delete ' + item.title">
+            Delete
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <footer
+      class="panel-footer"
+      *ngIf="filteredNotifications.length > 0">
+      Showing {{ filteredNotifications.length }} notifications
+    </footer>
+  </section>
+</div>
