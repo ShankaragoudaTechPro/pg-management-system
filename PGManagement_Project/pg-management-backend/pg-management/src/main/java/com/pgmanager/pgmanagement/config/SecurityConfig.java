@@ -25,6 +25,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins}")
+    private String[] allowedOrigins;
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     // =====================================================
@@ -110,13 +113,7 @@ public class SecurityConfig {
         CorsConfiguration configuration =
                 new CorsConfiguration();
 
-        configuration.setAllowedOrigins(
-                List.of(
-                        "http://localhost:4200",
-                        "http://localhost:53769",
-                        "http://localhost:55901"
-                )
-        );
+        configuration.setAllowedOrigins(java.util.Arrays.asList(allowedOrigins));
 
         configuration.setAllowedMethods(
                 List.of(
