@@ -1,0 +1,67 @@
+name: pg-management-ci-cd
+
+on:
+  push:
+ branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+ runs-on: ubuntu-latest
+ permissions:
+   contents: read
+   packages: write
+ env:
+   API_BASE_URL: ${{ vars.API_BASE_URL }}
+ steps:
+   - uses: actions/checkout@v4
+
+   - name: Prepare names
+     run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+
+   - name: Point frontend at the backend API
+     run: |
+       test -n "$API_BASE_URL" || { echo "Set the API_BASE_URL repository variable"; exit 1; }
+       sed -i -E "s#baseUrl: '[^']*'#baseUrl: '${API_BASE_URL}'#" PGManagement_Project/pg-management-frontend/src/app/core/services/api-config.ts
+       cat PGManagement_Project/pg-management-frontend/src/app/core/services/api-config.ts
+
+   - uses: docker/setup-buildx-action@v3
+
+   - uses: docker/login-action@v3
+     with:
+       registry: ghcr.io
+       username: ${{ github.actor }}
+       password: ${{ secrets.GITHUB_TOKEN }}
+
+   - name: Build and push backend
+     uses: docker/build-push-action@v6
+     with:
+       context: PGManagement_Project/pg-management-backend/pg-management
+       file: PGManagement_Project/Dockerfile.backend
+       push: true
+       tags: ghcr.io/${{ env.OWNER }}/pg-backend:${{ github.sha }}
+       cache-from: type=gha,scope=backend
+       cache-to: type=gha,scope=backend,mode=max
+
+   - name: Build and push frontend
+     uses: docker/build-push-action@v6
+     with:
+       context: PGManagement_Project/pg-management-frontend
+       file: PGManagement_Project/Dockerfile.frontend
+       push: true
+       tags: ghcr.io/${{ env.OWNER }}/pg-frontend:${{ github.sha }}
+       cache-from: type=gha,scope=frontend
+       cache-to: type=gha,scope=frontend,mode=max
+
+  deploy:
+ needs: build-and-push
+ runs-on: [self-hosted, k8s-deploy]
+ steps:
+   - name: Roll out new images
+     run: |
+       OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+       kubectl set image deployment/backend backend=ghcr.io/${OWNER}/pg-backend:${GITHUB_SHA} -n pg-management
+       kubectl set image deployment/frontend frontend=ghcr.io/${OWNER}/pg-frontend:${GITHUB_SHA} -n pg-management
+       kubectl rollout status deployment/backend -n pg-management --timeout=300s
+       kubectl rollout status deployment/frontend -n pg-management --timeout=300s
+       kubectl get pods -n pg-management
