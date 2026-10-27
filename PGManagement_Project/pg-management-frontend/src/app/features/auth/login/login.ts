@@ -13,13 +13,13 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.html',
-  styleUrl: './login.scss'
+  styleUrls: ['./login.scss']
 })
 export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly currentYear = new Date().getFullYear();
+  readonly currentYear: number = new Date().getFullYear();
 
   email = '';
   password = '';
@@ -30,49 +30,60 @@ export class LoginComponent {
   login(): void {
     this.errorMessage = '';
 
-    if (this.loading) return;
+    if (this.loading) {
+      return;
+    }
 
-    const email = this.email.trim().toLowerCase();
+    const normalizedEmail = this.email.trim().toLowerCase();
 
-    if (!email || !this.password) {
-      this.errorMessage = 'Enter your email and password.';
+    if (!normalizedEmail || !this.password) {
+      this.errorMessage = 'Please enter your email and password.';
       return;
     }
 
     this.loading = true;
 
-    this.authService.login({
-      email,
-      password: this.password
-    }).pipe(
-      finalize(() => {
-        this.loading = false;
+    this.authService
+      .login({
+        email: normalizedEmail,
+        password: this.password
       })
-    ).subscribe({
-      next: response => {
-        if (!response?.token) {
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (!response?.token) {
+            this.errorMessage =
+              'Login response did not contain a token. Please check your backend response.';
+            return;
+          }
+
+          void this.router.navigate(['/dashboard']);
+        },
+
+        error: (error: HttpErrorResponse) => {
+          console.error('Login failed:', error);
+
           this.errorMessage =
-            'Login response did not contain a token. Check the backend response.';
-          return;
+            error.error?.message ??
+            error.error?.detail ??
+            (error.status === 0
+              ? 'Unable to connect to the server. Check whether the backend is running.'
+              : error.status === 400
+                ? 'Please check the information you entered.'
+                : error.status === 401
+                  ? 'Invalid email or password.'
+                  : error.status === 403
+                    ? 'Access denied. Please check your account permissions.'
+                    : `Login failed. Server returned HTTP ${error.status}.`);
         }
+      });
+  }
 
-        // AuthService stores the token.
-        void this.router.navigate(['/dashboard']);
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Owner login failed:', error);
-
-        this.errorMessage =
-          error.error?.message ??
-          error.error?.detail ??
-          (error.status === 0
-            ? 'Cannot connect to the backend. Check that Spring Boot is running on port 8080.'
-            : error.status === 401
-              ? 'Invalid email or password.'
-              : error.status === 403
-                ? 'Access denied. Check the backend security configuration.'
-                : `Login failed with HTTP ${error.status}.`);
-      }
-    });
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 }

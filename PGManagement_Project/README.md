@@ -93,3 +93,8 @@ Use a branch for each change and open a pull request for review. Never commit ge
 
 ## License
 No license has been selected. Add a license after deciding how others may use and distribute this project.
+
+## CI/CD Verification Test
+
+Testing the GitHub Pull Request and CI workflow.
+No application business logic has been changed.
