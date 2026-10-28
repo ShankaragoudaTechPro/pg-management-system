@@ -16,9 +16,9 @@
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(ellipse at 8% 8%, rgba(68, 105, 190, 0.09), transparent 34%),
-    #f1f4f9;
-  color: #18243a;
+    radial-gradient(ellipse at 8% 8%, rgba(119, 68, 190, 0.09), transparent 34%),
+    #f4f1f9;
+  color: #26183a;
   font-family: Inter, Arial, sans-serif;
 }
 
@@ -29,10 +29,10 @@
   max-width: 1240px;
   min-height: 700px;
   overflow: hidden;
-  border: 1px solid #e5eaf2;
+  border: 1px solid #eae5f2;
   border-radius: 24px;
   background: #fff;
-  box-shadow: 0 24px 80px rgba(25, 43, 76, 0.12);
+  box-shadow: 0 24px 80px rgba(46, 25, 76, 0.12);
 }
 
 .login-panel {
@@ -65,8 +65,8 @@
   height: 46px;
   flex-shrink: 0;
   border-radius: 13px;
-  background: linear-gradient(145deg, #315fd5, #2447a7);
-  box-shadow: 0 6px 16px rgba(49, 95, 213, 0.24);
+  background: linear-gradient(145deg, #7531d5, #5b24a7);
+  box-shadow: 0 6px 16px rgba(117, 49, 213, 0.24);
   color: #fff;
   font-size: 15px;
   font-weight: 800;
@@ -80,7 +80,7 @@
 }
 
 .brand-name {
-  color: #17243b;
+  color: #26173b;
   font-size: 16px;
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -91,8 +91,8 @@
   margin-left: 3px;
   padding: 3px 5px;
   border-radius: 5px;
-  background: #e9efff;
-  color: #315ac1;
+  background: #f2e9ff;
+  color: #6d31c1;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.5px;
@@ -106,9 +106,9 @@
 
 .portal-badge {
   padding: 8px 10px;
-  border: 1px solid #e5eaf2;
+  border: 1px solid #eae5f2;
   border-radius: 8px;
-  background: #f8faff;
+  background: #fbf8ff;
   color: #53627b;
   font-size: 10px;
   font-weight: 700;
@@ -130,7 +130,7 @@
 }
 
 .eyebrow {
-  color: #4165c4;
+  color: #7841c4;
 }
 
 .status-dot,
@@ -145,7 +145,7 @@
 
 .welcome h1 {
   margin: 17px 0 9px;
-  color: #17243b;
+  color: #26173b;
   font-size: clamp(30px, 3vw, 39px);
   font-weight: 800;
   letter-spacing: -1.7px;
@@ -153,7 +153,7 @@
 }
 
 .welcome h1 span {
-  color: #4165c4;
+  color: #7841c4;
 }
 
 .welcome p {
@@ -174,7 +174,7 @@
 .field label {
   display: block;
   margin-bottom: 9px;
-  color: #29364d;
+  color: #38294d;
   font-size: 12px;
   font-weight: 700;
 }
@@ -185,15 +185,15 @@
   min-width: 0;
   height: 49px;
   padding: 0 13px;
-  border: 1px solid #dfe5ef;
+  border: 1px solid #e6dfef;
   border-radius: 10px;
   background: #fff;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input-wrap:focus-within {
-  border-color: #5278dd;
-  box-shadow: 0 0 0 3px rgba(82, 120, 221, 0.12);
+  border-color: #8c52dd;
+  box-shadow: 0 0 0 3px rgba(140, 82, 221, 0.12);
 }
 
 .input-icon {
@@ -211,7 +211,7 @@
   border: 0;
   outline: none;
   background: transparent;
-  color: #25334b;
+  color: #35254b;
   font-size: 12px;
 }
 
@@ -229,7 +229,7 @@
   padding: 7px 0 7px 8px;
   border: 0;
   background: transparent;
-  color: #4165c4;
+  color: #7841c4;
   cursor: pointer;
   font-size: 11px;
   font-weight: 700;
@@ -253,7 +253,7 @@
 
 .form-options a,
 .register-link a {
-  color: #4165c4;
+  color: #7841c4;
   font-size: 11px;
   font-weight: 700;
   text-decoration: none;
@@ -261,7 +261,7 @@
 
 .form-options a:hover,
 .register-link a:hover {
-  color: #2447a7;
+  color: #5b24a7;
   text-decoration: underline;
 }
 
@@ -303,8 +303,8 @@
   padding: 12px 16px;
   border: 0;
   border-radius: 10px;
-  background: linear-gradient(110deg, #315fd5, #2447a7);
-  box-shadow: 0 7px 15px rgba(49, 95, 213, 0.18);
+  background: linear-gradient(110deg, #7531d5, #5b24a7);
+  box-shadow: 0 7px 15px rgba(117, 49, 213, 0.18);
   color: #fff;
   cursor: pointer;
   font-size: 12px;
@@ -314,7 +314,7 @@
 
 .sign-in-button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(49, 95, 213, 0.25);
+  box-shadow: 0 10px 20px rgba(117, 49, 213, 0.25);
 }
 
 .sign-in-button:disabled {
@@ -366,9 +366,9 @@
   gap: 12px;
   margin-top: 27px;
   padding: 14px;
-  border: 1px solid #263550;
+  border: 1px solid #382650;
   border-radius: 12px;
-  background: #0d172b;
+  background: #190d2b;
 }
 
 .switch-icon {
@@ -378,8 +378,8 @@
   height: 39px;
   flex-shrink: 0;
   border-radius: 10px;
-  background: #1b2a47;
-  color: #9ab9ff;
+  background: #2d1b47;
+  color: #c49aff;
   font-size: 19px;
 }
 
@@ -392,13 +392,13 @@
 }
 
 .switch-content strong {
-  color: #f0f4ff;
+  color: #f6f0ff;
   font-size: 11px;
   font-weight: 700;
 }
 
 .switch-content span {
-  color: #a1aec5;
+  color: #b0a1c5;
   font-size: 10px;
   line-height: 1.5;
 }
@@ -410,10 +410,10 @@
   gap: 7px;
   flex-shrink: 0;
   padding: 9px 10px;
-  border: 1px solid #3a507b;
+  border: 1px solid #553a7b;
   border-radius: 8px;
-  background: #172745;
-  color: #a7c5ff;
+  background: #2a1745;
+  color: #cca7ff;
   font-size: 10px;
   font-weight: 700;
   text-decoration: none;
@@ -422,7 +422,7 @@
 }
 
 .switch-button:hover {
-  background: #263d65;
+  background: #402665;
 }
 
 .login-footer {
@@ -457,8 +457,8 @@
   overflow: hidden;
   padding: 43px 42px 28px;
   background:
-    radial-gradient(ellipse at 90% 5%, rgba(91, 132, 236, 0.22), transparent 38%),
-    linear-gradient(145deg, #111e36 0%, #0b1427 75%, #101c34 100%);
+    radial-gradient(ellipse at 90% 5%, rgba(214, 153, 113, 0.22), transparent 38%),
+    linear-gradient(145deg, #362011 0%, #27160b 75%, #341e10 100%);
   color: #fff;
 }
 
@@ -466,7 +466,7 @@
   position: absolute;
   width: 270px;
   height: 270px;
-  border: 1px solid rgba(151, 179, 245, 0.09);
+  border: 1px solid rgba(229, 192, 167, 0.09);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -474,8 +474,8 @@
 .shape-one {
   top: -130px;
   right: -80px;
-  box-shadow: 0 0 0 32px rgba(151, 179, 245, 0.025),
-              0 0 0 64px rgba(151, 179, 245, 0.02);
+  box-shadow: 0 0 0 32px rgba(229, 192, 167, 0.025),
+              0 0 0 64px rgba(229, 192, 167, 0.02);
 }
 
 .shape-two {
@@ -483,7 +483,7 @@
   bottom: 70px;
   width: 210px;
   height: 210px;
-  border-color: rgba(151, 179, 245, 0.06);
+  border-color: rgba(229, 192, 167, 0.06);
 }
 
 .feature-content,
@@ -497,7 +497,7 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 45px;
-  color: #eef3ff;
+  color: #fbf6f2;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 1px;
@@ -512,12 +512,12 @@
 }
 
 .feature-pro {
-  background: rgba(121, 157, 255, 0.17);
-  color: #adc4ff;
+  background: rgba(225, 181, 151, 0.17);
+  color: #edd1bf;
 }
 
 .platform-badge {
-  color: #a9bff2;
+  color: #e9c8b2;
   font-size: 9px;
   letter-spacing: 1.4px;
 }
@@ -532,13 +532,13 @@
 }
 
 .feature-panel h2 span {
-  color: #8eafff;
+  color: #e6c0a7;
 }
 
 .feature-description {
   max-width: 390px;
   margin: 0;
-  color: #a8b5cb;
+  color: #cbb6a8;
   font-size: 12px;
   line-height: 1.9;
 }
@@ -553,14 +553,14 @@
 .feature-card {
   min-width: 0;
   padding: 17px 16px;
-  border: 1px solid rgba(183, 200, 236, 0.13);
+  border: 1px solid rgba(235, 204, 184, 0.13);
   border-radius: 13px;
   background: rgba(255, 255, 255, 0.045);
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .feature-card:hover {
-  border-color: rgba(145, 176, 255, 0.32);
+  border-color: rgba(230, 194, 170, 0.32);
   background: rgba(255, 255, 255, 0.075);
 }
 
@@ -570,17 +570,17 @@
   width: 35px;
   height: 35px;
   margin-bottom: 15px;
-  border: 1px solid rgba(139, 172, 255, 0.2);
+  border: 1px solid rgba(229, 191, 165, 0.2);
   border-radius: 10px;
-  background: rgba(76, 112, 200, 0.16);
-  color: #a8c1ff;
+  background: rgba(200, 126, 76, 0.16);
+  color: #ebcfbc;
   font-size: 20px;
 }
 
 .feature-label {
   display: block;
   margin-bottom: 8px;
-  color: #8399c4;
+  color: #c49d83;
   font-size: 8px;
   font-weight: 800;
   letter-spacing: 1.2px;
@@ -588,14 +588,14 @@
 
 .feature-card h3 {
   margin: 0 0 7px;
-  color: #f2f5ff;
+  color: #fcf8f5;
   font-size: 12px;
   font-weight: 700;
 }
 
 .feature-card p {
   margin: 0;
-  color: #9baac3;
+  color: #c3ab9b;
   font-size: 10px;
   line-height: 1.7;
 }
@@ -607,19 +607,19 @@
   gap: 12px;
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid rgba(185, 202, 239, 0.12);
-  color: #93a2bd;
+  border-top: 1px solid rgba(236, 207, 188, 0.12);
+  color: #bda493;
   font-size: 10px;
 }
 
 .footer-brand {
-  color: #e4ebfc;
+  color: #f8eee8;
   font-weight: 700;
   white-space: nowrap;
 }
 
 .footer-brand span {
-  color: #8eafff;
+  color: #e6c0a7;
 }
 
 /* Responsive layouts */
